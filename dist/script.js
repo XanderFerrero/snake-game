@@ -1,5 +1,4 @@
 "use strict";
-const log = console.log;
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext("2d");
 let score = 0;
@@ -80,7 +79,6 @@ class Apple {
 let snake = new Snake();
 let apple = new Apple();
 const keyEvent = (e) => {
-    log(e.key);
     switch (e.key) {
         case "ArrowLeft":
             if (dir != DIR.RIGHT) {
@@ -140,7 +138,3 @@ setInterval(() => {
             break;
     }
 }, 100);
-// while(1){
-//     
-// }
-log("Hello World");

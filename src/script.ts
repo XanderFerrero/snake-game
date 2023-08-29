@@ -1,4 +1,3 @@
-const log = console.log
 const canvas = document.getElementById('canvas') as HTMLCanvasElement
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 let score = 0;
@@ -104,7 +103,6 @@ let snake = new Snake()
 let apple = new Apple()
 
 const keyEvent = (e: KeyboardEvent) => {
-    log(e.key)
     switch(e.key){
         case "ArrowLeft":
             if(dir != DIR.RIGHT){
@@ -178,9 +176,3 @@ setInterval(() => {
             break;
     }
 }, 100)
-
-// while(1){
-//     
-// }
-
-log("Hello World")  
