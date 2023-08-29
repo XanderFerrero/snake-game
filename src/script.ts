@@ -175,4 +175,4 @@ setInterval(() => {
             snake.y++;
             break;
     }
-}, 1000)
+}, 50)    
