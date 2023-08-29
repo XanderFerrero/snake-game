@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 let score = 0;
 let wCol = true;
 let bCol = true;
+let canPress = false;
 const h1 = document.getElementById('score');
 let hiScore = localStorage.getItem("score") || "0";
 canvas.width = 450;
@@ -63,16 +64,16 @@ class Snake {
             if (this.x * a < 0) {
                 this.x = s;
             }
-        }
-        if (bCol) {
             if (this.y * a < 0) {
                 this.y = s;
             }
         }
-        if (snake.total() > 1) {
-            for (let i = 1; i < snake.total(); i++) {
-                if (this.squares[0].x == this.squares[i].x && this.squares[0].y == this.squares[i].y) {
-                    this.reset();
+        if (bCol) {
+            if (snake.total() > 1) {
+                for (let i = 1; i < snake.total(); i++) {
+                    if (this.squares[0].x == this.squares[i].x && this.squares[0].y == this.squares[i].y) {
+                        this.reset();
+                    }
                 }
             }
         }
@@ -104,27 +105,30 @@ class Apple {
 let snake = new Snake();
 let apple = new Apple();
 const keyEvent = (e) => {
-    switch (e.key) {
-        case "ArrowLeft":
-            if (dir != DIR.RIGHT) {
-                dir = DIR.LEFT;
-            }
-            break;
-        case "ArrowRight":
-            if (dir != DIR.LEFT) {
-                dir = DIR.RIGHT;
-            }
-            break;
-        case "ArrowUp":
-            if (dir != DIR.DOWN) {
-                dir = DIR.UP;
-            }
-            break;
-        case "ArrowDown":
-            if (dir != DIR.UP) {
-                dir = DIR.DOWN;
-            }
-            break;
+    if (canPress) {
+        switch (e.key) {
+            case "ArrowLeft":
+                if (dir != DIR.RIGHT) {
+                    dir = DIR.LEFT;
+                }
+                break;
+            case "ArrowRight":
+                if (dir != DIR.LEFT) {
+                    dir = DIR.RIGHT;
+                }
+                break;
+            case "ArrowUp":
+                if (dir != DIR.DOWN) {
+                    dir = DIR.UP;
+                }
+                break;
+            case "ArrowDown":
+                if (dir != DIR.UP) {
+                    dir = DIR.DOWN;
+                }
+                break;
+        }
+        canPress = false;
     }
 };
 window.addEventListener('keydown', keyEvent);
@@ -172,6 +176,7 @@ const game = () => {
     document.getElementById("bodyCol").textContent = `Body Collision: ${bCol}`;
     document.getElementById("hi-score").textContent = `Highest Score: ${hiScore}`;
     render();
+    canPress = true;
 };
 function setWCol() { wCol = !wCol; }
 function setBCol() { bCol = !bCol; }

@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 let score = 0;
 let wCol = true;
 let bCol = true;
-
+let canPress = false;
 const h1 = document.getElementById('score') as HTMLHeadingElement
 let hiScore: string = localStorage.getItem("score") || "0";
 
@@ -82,18 +82,18 @@ class Snake{
             if(this.x * a < 0){
                 this.x = s;
             }
-        }
 
-        if(bCol){
             if(this.y * a < 0){
                 this.y = s;
             }
         }
 
-        if(snake.total() > 1){
-            for(let i = 1; i < snake.total(); i++){
-                if(this.squares[0].x == this.squares[i].x && this.squares[0].y == this.squares[i].y){
-                    this.reset();
+        if(bCol){
+            if(snake.total() > 1){
+                for(let i = 1; i < snake.total(); i++){
+                    if(this.squares[0].x == this.squares[i].x && this.squares[0].y == this.squares[i].y){
+                        this.reset();
+                    }
                 }
             }
         }
@@ -131,27 +131,31 @@ let snake = new Snake()
 let apple = new Apple()
 
 const keyEvent = (e: KeyboardEvent) => {
-    switch(e.key){
-        case "ArrowLeft":
-            if(dir != DIR.RIGHT){
-                dir = DIR.LEFT
-            }
-            break;
-        case "ArrowRight":
-            if(dir != DIR.LEFT){
-                dir = DIR.RIGHT
-            }
-            break;
-        case "ArrowUp":
-            if(dir != DIR.DOWN){
-                dir = DIR.UP
-            }
-            break;
-        case "ArrowDown":
-            if(dir != DIR.UP){
-                dir = DIR.DOWN
-            }
-            break;
+    if(canPress){
+
+        switch(e.key){
+            case "ArrowLeft":
+                if(dir != DIR.RIGHT){
+                    dir = DIR.LEFT
+                }
+                break;
+            case "ArrowRight":
+                if(dir != DIR.LEFT){
+                    dir = DIR.RIGHT
+                }
+                break;
+            case "ArrowUp":
+                if(dir != DIR.DOWN){
+                    dir = DIR.UP
+                }
+                break;
+            case "ArrowDown":
+                if(dir != DIR.UP){
+                    dir = DIR.DOWN
+                }
+                break;
+        }
+        canPress = false;
     }
 }
 
@@ -169,7 +173,6 @@ const render = () => {
     for(let i = 0; i < snake.squares.length; i++){
         
         ctx.fillStyle = "#61ff3d"
-        
         ctx.fillRect(
             snake.squares[i].x * a, 
             snake.squares[i].y * a, 
@@ -182,6 +185,7 @@ const render = () => {
             snake.squares[i].y * a + borderS, 
             a - borderS * 2, 
             a - borderS * 2)
+
     }
 
     ctx.fillStyle = "red"
@@ -193,35 +197,37 @@ const render = () => {
     ctx.fillStyle = "black"
 }
 
+
 const game = () => {
     ctx.fillRect(0,0, canvas.width, canvas.height)
     switch(dir){
         case DIR.RIGHT:
             snake.x++;
             break;
-        case DIR.LEFT:
+            case DIR.LEFT:
             snake.x--;
             break;
             case DIR.UP:
                 snake.y--;
                 break;
-            case DIR.DOWN:
-                snake.y++;
-                break;
-            }
+                case DIR.DOWN:
+                    snake.y++;
+                    break;
+                }
     snake.collide();
     apple.collide(snake);
-
+    
     if(score > Number(hiScore) && wCol && bCol){
         localStorage.setItem("score", String(score))
         hiScore = localStorage.getItem("score")!
     }
-
+    
     h1.textContent = `Score: ${score}`
     document.getElementById("wallCol")!.textContent =  `Wall Collision: ${wCol}`
     document.getElementById("bodyCol")!.textContent =  `Body Collision: ${bCol}`
     document.getElementById("hi-score")!.textContent = `Highest Score: ${hiScore}`
     render();
+    canPress = true;
 }
 
 function setWCol() {wCol = !wCol}
