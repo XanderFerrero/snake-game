@@ -2,9 +2,12 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext("2d");
 let score = 0;
+let wCol = true;
+let bCol = true;
 const h1 = document.getElementById('score');
-canvas.width = 500;
-canvas.height = 500;
+let hiScore = localStorage.getItem("score") || "0";
+canvas.width = 450;
+canvas.height = 450;
 var DIR;
 (function (DIR) {
     DIR[DIR["UP"] = 0] = "UP";
@@ -12,13 +15,14 @@ var DIR;
     DIR[DIR["LEFT"] = 2] = "LEFT";
     DIR[DIR["RIGHT"] = 3] = "RIGHT";
 })(DIR || (DIR = {}));
-let s = 25;
+let s = 17;
 let defX = Math.floor(s / 2);
 let defY = Math.floor(s / 2);
 let x = 0;
 let y = 0;
 let a = canvas.width / s;
-let border = 2;
+let borderS = 2;
+let borderA = 4;
 let dir = DIR.RIGHT;
 class Snake {
     x = defX;
@@ -38,14 +42,35 @@ class Snake {
         this.squares = [{ x: this.x, y: this.y }];
         score = 0;
     }
+    total() {
+        return this.squares.length;
+    }
     collide() {
-        if (this.x * a > canvas.width || this.y * a > canvas.height ||
-            this.x * a < 0 || this.y * a < 0) {
-            this.reset();
-            render();
+        if (wCol) {
+            if ((this.x * a) + a > canvas.width || (this.y * a) + a > canvas.height ||
+                this.x * a < 0 || this.y * a < 0) {
+                console.log("COLLIDE");
+                this.reset();
+            }
         }
-        if (this.squares.length > 1) {
-            for (let i = 1; i < this.squares.length; i++) {
+        else {
+            if ((this.x * a) + a > canvas.width) {
+                this.x = 0;
+            }
+            if ((this.y * a) + a > canvas.height) {
+                this.y = 0;
+            }
+            if (this.x * a < 0) {
+                this.x = s;
+            }
+        }
+        if (bCol) {
+            if (this.y * a < 0) {
+                this.y = s;
+            }
+        }
+        if (snake.total() > 1) {
+            for (let i = 1; i < snake.total(); i++) {
                 if (this.squares[0].x == this.squares[i].x && this.squares[0].y == this.squares[i].y) {
                     this.reset();
                 }
@@ -110,19 +135,18 @@ const render = () => {
         };
     }
     snake.updatePos();
-    for (let square of snake.squares) {
-        ctx.fillRect(square.x * a + border, square.y * a + border, a - border * 2, a - border * 2);
+    for (let i = 0; i < snake.squares.length; i++) {
+        ctx.fillStyle = "#61ff3d";
+        ctx.fillRect(snake.squares[i].x * a, snake.squares[i].y * a, a, a);
+        ctx.fillStyle = `rgb(2, 66, 13,${(snake.total() - i) / snake.total()})`;
+        ctx.fillRect(snake.squares[i].x * a + borderS, snake.squares[i].y * a + borderS, a - borderS * 2, a - borderS * 2);
     }
     ctx.fillStyle = "red";
-    ctx.fillRect(apple.x * a + border, apple.y * a + border, a - border * 2, a - border * 2);
+    ctx.fillRect(apple.x * a + borderA, apple.y * a + borderA, a - borderA * 2, a - borderA * 2);
     ctx.fillStyle = "black";
 };
-setInterval(() => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    render();
-    h1.textContent = `Score: ${score}`;
-    snake.collide();
-    apple.collide(snake);
+const game = () => {
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
     switch (dir) {
         case DIR.RIGHT:
             snake.x++;
@@ -137,4 +161,18 @@ setInterval(() => {
             snake.y++;
             break;
     }
-}, 100);
+    snake.collide();
+    apple.collide(snake);
+    if (score > Number(hiScore) && wCol && bCol) {
+        localStorage.setItem("score", String(score));
+        hiScore = localStorage.getItem("score");
+    }
+    h1.textContent = `Score: ${score}`;
+    document.getElementById("wallCol").textContent = `Wall Collision: ${wCol}`;
+    document.getElementById("bodyCol").textContent = `Body Collision: ${bCol}`;
+    document.getElementById("hi-score").textContent = `Highest Score: ${hiScore}`;
+    render();
+};
+function setWCol() { wCol = !wCol; }
+function setBCol() { bCol = !bCol; }
+setInterval(game, 80);
