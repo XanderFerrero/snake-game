@@ -1,6 +1,16 @@
 "use strict";
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext("2d");
+let audioPath = {
+    eat: "./eat.mp3",
+    over: "./over.mp3",
+    move: "./move.mp3"
+};
+let audio = new Audio();
+let playAudio = (path) => {
+    audio.src = path;
+    // audio.play()
+};
 let score = 0;
 let wCol = true;
 let bCol = true;
@@ -42,6 +52,7 @@ class Snake {
         this.y = defY;
         this.squares = [{ x: this.x, y: this.y }];
         score = 0;
+        playAudio(audioPath.over);
     }
     total() {
         return this.squares.length;
@@ -50,6 +61,7 @@ class Snake {
         if (wCol) {
             if ((this.x * a) + a > canvas.width || (this.y * a) + a > canvas.height ||
                 this.x * a < 0 || this.y * a < 0) {
+                window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
                 console.log("COLLIDE");
                 this.reset();
             }
@@ -91,6 +103,7 @@ class Apple {
             if (square.x == this.x && square.y == this.y) {
                 if (square == s.squares[0]) {
                     s.add();
+                    playAudio(audioPath.eat);
                 }
                 this.respawn();
                 this.collide(s);
@@ -106,6 +119,7 @@ let snake = new Snake();
 let apple = new Apple();
 const keyEvent = (e) => {
     if (canPress) {
+        // playAudio(audioPath.move)
         switch (e.key) {
             case "ArrowLeft":
                 if (dir != DIR.RIGHT) {
@@ -139,7 +153,7 @@ const render = () => {
         };
     }
     snake.updatePos();
-    for (let i = 0; i < snake.squares.length; i++) {
+    for (let i = snake.squares.length - 1; i >= 0; i--) {
         ctx.fillStyle = "#61ff3d";
         ctx.fillRect(snake.squares[i].x * a, snake.squares[i].y * a, a, a);
         ctx.fillStyle = `rgb(2, 66, 13,${(snake.total() - i) / snake.total()})`;
